@@ -87,7 +87,7 @@ class BaseNamespace(object):  # pragma: no cover
 
 class SocketIO(object):
 
-    def __init__(self, host, port, Namespace=BaseNamespace, secure=False, headers=None, proxies=None):
+    def __init__(self, host, port, Namespace=BaseNamespace, secure=False, headers=None, proxies=None, query_string=None):
         """
         Create a socket.io client that connects to a socket.io server
         at the specified host and port.  Set secure=True to use HTTPS / WSS.
@@ -95,7 +95,7 @@ class SocketIO(object):
         SocketIO('localhost', 8000, secure=True,
             proxies={'https': 'https://proxy.example.com:8080'})
         """
-        self._socketIO = _SocketIO(host, port, secure, headers, proxies)
+        self._socketIO = _SocketIO(host, port, secure, headers, proxies, query_string)
         self._namespaceByPath = {}
         self.define(Namespace)
 
@@ -294,10 +294,10 @@ class _SocketIO(object):
 
     messageID = 0
 
-    def __init__(self, host, port, secure, headers, proxies):
+    def __init__(self, host, port, secure, headers, proxies, query_string):
         baseURL = '%s:%d/socket.io/%s' % (host, port, PROTOCOL)
         targetScheme = 'https' if secure else 'http'
-        targetURL = '%s://%s/' % (targetScheme, baseURL)
+        targetURL = '%s://%s/?%s' % (targetScheme, baseURL, query_string)
         try:
             response = requests.get(
                 targetURL,
